@@ -5,6 +5,11 @@
 <h2>Register Test</h2>
 
 <button onclick="register()">Register</button>
+<button onclick="login()">Login</button>
+<button onclick="addGame()">Add Game</button>
+<button onclick="getGames()">Get Games</button>
+<button onclick="updateGame()">Update Game</button>
+<button onclick="deleteGame()">Delete Game</button>
 
 <script>
 function register() {
@@ -24,7 +29,76 @@ function register() {
     .then(data => console.log(data))
     .catch(err => console.log("error:", err));
 }
+
+function login() {
+    fetch("http://127.0.0.1:6090/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: "test2",
+            password: "1234"
+        })
+    })
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .catch(err => console.log(err));
+}
+
+function addGame() {
+    fetch("http://127.0.0.1:6090/games", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title: "Sample Game",
+            description: "Test game",
+            game_url: "https://example.com"
+        })
+    })
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .catch(err => console.log(err));
+}
+
+function getGames() {
+    fetch("http://127.0.0.1:6090/games")
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .catch(err => console.log(err));
+}
+
+function updateGame() {
+    fetch("http://127.0.0.1:6090/games/1", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title: "Updated Game",
+            description: "Updated description",
+            game_url: "https://updated.com"
+        })
+    })
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .catch(err => console.log(err));
+}
+
+function deleteGame() {
+    fetch("http://127.0.0.1:6090/games/1", {
+        method: "DELETE"
+    })
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .catch(err => console.log(err));
+}
+
+
 </script>
+
 
 </body>
 </html>

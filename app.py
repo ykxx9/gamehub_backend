@@ -4,9 +4,11 @@ from flask_cors import CORS
 from models import User
 from extensions import db
 from routes.auth import auth_bp
+from models import User, Game
+from routes.games import games_bp
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*"}}, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
@@ -15,6 +17,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 app.register_blueprint(auth_bp)
+
+app.register_blueprint(games_bp)
 
 @app.route('/')
 def home():

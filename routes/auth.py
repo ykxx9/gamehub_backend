@@ -5,6 +5,7 @@ from models import User
 from extensions import db
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -31,3 +32,27 @@ def register():
     db.session.commit()
 
     return jsonify({"message": "User registered"}), 201
+
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return "login route is working"
+    data = request.get_json()
+
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({"error": "Missing fields"}), 400
+
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if not check_password_hash(user.password_hash, password):
+        return jsonify({"error": "Invalid password"}), 401
+
+    return jsonify({"message": "Login successful"}), 200
+
