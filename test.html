@@ -55,6 +55,8 @@ function addGame() {
         body: JSON.stringify({
             title: "Sample Game",
             description: "Test game",
+            genre: "action",
+            rating: "4.9",
             game_url: "https://example.com"
         })
     })
@@ -79,6 +81,8 @@ function updateGame() {
         body: JSON.stringify({
             title: "Updated Game",
             description: "Updated description",
+            genre: "action",
+            rating: "4.9",
             game_url: "https://updated.com"
         })
     })
