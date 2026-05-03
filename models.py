@@ -22,3 +22,8 @@ class Game(db.Model):
     developer_name = db.Column(db.String(100), default="Unknown")
     images = db.Column(db.Text, default="")   # Comma-separated image URLs (max 5)
     user_id = db.Column(db.Integer, default=0) # FK to User.id (lightweight, no constraint)
+
+class SavedGame(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)

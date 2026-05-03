@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from flask import Blueprint, request, jsonify
-from models import Game
+from models import Game, SavedGame
 from extensions import db
 
 games_bp = Blueprint('games', __name__)
@@ -47,8 +47,8 @@ def create_game():
     user_id = data.get('user_id', 0)
 
     # Required field check
-    if not title or not description or not genre or not game_url:
-        return jsonify({"success": False, "error": "Missing required fields (title, description, genre, game_url)"}), 400
+    if not title or not description or not genre or not game_url or not developer_name:
+        return jsonify({"success": False, "error": "Missing required fields"}), 400
 
     # rating validation
     if rating is not None and not isinstance(rating, (int, float)):
@@ -199,3 +199,37 @@ def like_game(id):
 def get_user_games(user_id):
     games = Game.query.filter_by(user_id=user_id).all()
     return jsonify({"success": True, "data": [serialize_game(g) for g in games]}), 200
+
+@games_bp.route('/games/save', methods=['POST'])
+def save_game():
+    data = request.get_json(silent=True) or {}
+    username = data.get('username')
+    game_id = data.get('game_id')
+    
+    if not username or not game_id:
+        return jsonify({"success": False, "error": "Missing fields"}), 400
+    
+    exists = SavedGame.query.filter_by(username=username, game_id=game_id).first()
+    if exists:
+        return jsonify({"success": False, "error": "Already saved"}), 400
+    
+    saved = SavedGame(username=username, game_id=game_id)
+    db.session.add(saved)
+    db.session.commit()
+    return jsonify({"success": True}), 201
+
+@games_bp.route('/games/saved/<username>', methods=['GET'])
+def get_saved(username):
+    saved_entries = SavedGame.query.filter_by(username=username).all()
+    game_ids = [s.game_id for s in saved_entries]
+    games = Game.query.filter(Game.id.in_(game_ids)).all() if game_ids else []
+    return jsonify({"success": True, "data": [serialize_game(g) for g in games]}), 200
+
+@games_bp.route('/games/save/<int:game_id>/<username>', methods=['DELETE'])
+def remove_saved(game_id, username):
+    saved = SavedGame.query.filter_by(username=username, game_id=game_id).first()
+    if not saved:
+        return jsonify({"success": False, "error": "Not found"}), 404
+    db.session.delete(saved)
+    db.session.commit()
+    return jsonify({"success": True}), 200
